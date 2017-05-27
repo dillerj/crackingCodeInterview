@@ -1,6 +1,6 @@
 /*  Jed Diller
  * 	Cracking the Code Interview Solutions
- * 	Ch1.4 isPalindrome
+ * 	Ch1.5 nearSame
  */
 
 /**********************************
