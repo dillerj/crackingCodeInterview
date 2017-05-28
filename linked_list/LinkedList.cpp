@@ -1,199 +1,284 @@
-//*******************************************************************
-//  LinkedList.cpp
-//  LinkedList_Project
-//
-//  Created by Karlina Beringer on June 12, 2014.
-//  Edited by Jed Diller 5/27/17
-//  This source file contains the LinkedList class definitions.
-//*******************************************************************
+/*******************************************************************
+ * Author: Jed Diller
+ * LinkedList.cpp
+ * Linked List Class
+ *******************************************************************/
 
 #include "LinkedList.h"
 
-// Default Constructor creates the head node.
+/* 
+ * Constructor
+ */
 LinkedList::LinkedList()
 {
-    head = new node;
-    head -> data = 0;
-    head -> next = NULL;
+    head = NULL;
     listLength = 0;
 }
 
-// Setter adds a node to the list at a given position.
-// Takes a node and list position as parameters.
-// Position must be between 1 and the number of data nodes.
-// Returns true if the operation is successful.
-bool LinkedList::insertNode( node * newNode, int position )
+/*
+ * Add new Node to end of list
+ */ 
+void LinkedList::addNodeToEnd(int value)
+{
+    if (head != NULL) {
+        // Start at head and traverse until end
+        Node * p_curr = head; 
+        Node * p_next = head; 
+        while (p_next != NULL)
+        {
+            p_curr = p_next;            // save current pointer
+            p_next = p_next -> next;    // keep traversing list
+        }
+
+        // Found end, so now add new element
+        p_next = new Node;
+        p_curr -> next = p_next; 
+        p_next -> next = NULL;
+        p_next -> value = value;
+        printf("created node at: %p\n", (void *)p_next); 
+ 
+    } else {
+        // Create first node and point head to it
+        head = new Node;
+        head -> value = value; 
+        head -> next = NULL;
+        printf("created node at head: %p\n", (void *)head); 
+    } 
+
+    listLength++;
+    return;
+}
+
+/* 
+ * Remove last Node from end of list
+ */
+void LinkedList::removeNodeFromEnd()
+{
+    
+    // Start at head and traverse until end
+    Node * p_curr = head; 
+    Node * p_next = head; 
+
+    // Check for empty list s
+    if (head == NULL)
+    {
+        cout << "List is already empty\n";
+        return;
+    }
+    
+    // Check for deleting node head points to
+    if (head->next == NULL)
+    {
+        printf("deleting node at head: %p\n", (void *)head); 
+        delete head; // delete node at head
+        head = NULL; // set head null
+        listLength--;            
+        return;  
+    } 
+
+    // Iterate through until end
+    while (p_next->next != NULL)
+    {
+        p_curr = p_next;
+        p_next = p_next-> next;    // keep traversing list
+    }
+
+    // Found end, so now remove element
+    printf("deleting node at: %p\n", (void *)p_next); 
+    delete p_next;
+    p_curr -> next = NULL;
+    listLength--;
+
+    return;
+}
+
+void LinkedList::deleteAllNodes()
+{
+    while(head != NULL)
+    {
+        removeNodeFromEnd();
+    }
+    return;
+}
+
+/*
+ * Setter adds a Node to the list at a given position.
+ * Returns true if the operation is successful.
+ */
+bool LinkedList::insertNode( int value, int position )
 {
     // Sanity check for desired position 
-    if ((position <= 0) || (position > listLength+1))
+    // Positions are indexed 0-N
+    // To place one at the end, position = listLength
+    if ((position < 0) || (position > listLength))
     {
         cout << "Error: the given position is out of range\n";
         return false;
     }
 
-    // If there is no node attached to head, add link new node to head 
-    if (head -> next == NULL) 
+    // If position is first value, change head
+    if (position == 0)
     {
-        head -> next = newNode;
+        Node * p_afterInsert = head->next;
+        head = new Node;
+        head->next  = p_afterInsert;
+        head->value = value;
         listLength++;
+        return true;
+    }
+
+    // No Node at head yet, create it, position is 0
+    // Add to end if position = length
+    if (position == listLength) 
+    {
+        addNodeToEnd(value);
         return true;
     } 
 
-    // Find the end of the linked list
-    int count = 0;
-    node * p = head;
-    node * q = head;
-    while (q)
+    // Find the desired poisiton in linked list
+    int curr_pos = 0;
+    Node * p_last = head;
+    Node * p_curr = head;
+    
+    while (curr_pos < position)
     { 
-        // Insert in the middle of list if the position is right
-        if (count == position)
-        {
-            p -> next = newNode;
-            newNode -> next = q;
-            listLength++;
-            return true;
-        }
-        p = q;
-        q = p -> next;
-        count++;
+        p_last = p_curr;
+        p_curr = p_curr -> next;
+        curr_pos++;
     }
 
-    // Insert at the end of the list if position is right
-    if (count == position)
+    // Insert Node
+    p_last -> next = new Node;
+    // Set new node values
+    p_last -> next -> next = p_curr; // set new pointer to point to next position
+    p_last -> next -> value = value;
+    listLength++;
+    return true;
+}
+
+
+bool LinkedList::removeNode( int position )
+{
+    // To place one at the end, position = listLength
+    if ((position < 0) || (position > listLength))
     {
-        p -> next = newNode;
-        newNode -> next = q;
-        listLength++;
+        cout << "Error: the given position is out of range\n";
+        return false;
+    }
+
+    // Special check if at front of list (head involved)
+    // If position is first value, change head
+    if (position == 0)
+    {
+        Node * save = head->next;
+        delete head;
+        head = save;
+        listLength--;
         return true;
     }
 
-    cout << "nError: node was not added to list.n";
-    return false;
+    // No Node at head yet, create it, position is 0
+    // Add to end if position = length
+    if (position == listLength) 
+    {
+        removeNodeFromEnd();
+        return true;
+    }
+
+    // Find the desired positon in linked list
+    int curr_pos = 0;
+    Node * p_last = head;
+    Node * p_curr = head;
+    
+    while (curr_pos < position)
+    { 
+        p_last = p_curr;
+        p_curr = p_curr -> next;
+        curr_pos++;
+    }
+
+    // Get next pointer and deleted node
+    p_last -> next = p_curr->next;
+    delete p_curr;
+    listLength--;
+    return true;;
 }
 
-// Setter removes a node by its given position.
-// Returns true if the operation is successful.
-bool LinkedList::removeNode( int position )
+
+int LinkedList::getListLength()
 {
-    if ((position <= 0) || (position > listLength + 1))
-    {
-        cout << "nError: the given position is out of range.n";
-        return false;
-    }
-    if (head -> next == NULL)
-    {
-       cout << "nError: there is nothing to remove.n";
-       return false;
-    }
-    int count = 0;
-    node * p = head;
-    node * q = head;
-    while (q) 
-    {
-        if (count == position)
-        {
-            p -> next = q -> next;
-            delete q;
-            listLength--;
-            return true;
-        }
-        p = q;
-        q = p -> next;
-        count++;
-    }
-    cout << "nError: nothing was removed from the list.n";
-    return false;
+    return listLength;
 }
 
-// Prints each node in the list in consecutive order,
-// starting at the head and ending at the tail.
-// Prints the data to the console.
 void LinkedList::printList()
 {
-    int count=0;
-    node * p = head;
-    node * q = head;
     cout << "Linked List:\n";
-    while (q)
-    {
-        p = q;
+    cout << "head: " << head << "\n";
 
-        cout << "\npos : " << count << endl;
-        cout << "data: " << p -> data << endl;
-        q = p -> next;
-        count++;
+    int count=0;
+    Node * p_curr = head;
+    if (head==NULL) {
+        cout << "Empty list, head is NULL:\n";
+
+    } else {
+        while (p_curr != NULL)
+        {
+            cout << "pos : " << count << " data: " << p_curr->value;
+            printf(" next: %p\n", (void *)p_curr->next);
+            p_curr = p_curr -> next;
+            count++;
+        }
     }
 }
 
 // Destructor de-allocates memory used by the list.
 LinkedList::~LinkedList() 
 {
-    node * p = head;
-    node * q = head;
-    while (q)
-    {
-        p = q;
-        q = p -> next;
-        if (q) delete p;
-    }
+    deleteAllNodes();
 }
-
 
 /******************************************************
  *                  Main Testing 
  ******************************************************/
 int main()
 {
-    // STEP 1: Create some unlinked song nodes.
-    
-    node * A = new node;
-    A -> data = 1;
-    cout << "Created node\n";
-    
-    node * B = new node;
-    B -> data = 2;
-    
-    node * C = new node;
-    C -> data = 3;
-    
-    node * D = new node;
-    D -> data = 4;
-    
-    node * E = new node;
-    E -> data = 5;
-    
-    node * F = new node;
-    F -> data = 6;
-    
-    // // STEP 2: Build a list of three song nodes by appending to end of list.
-    cout << "Instantiating list\n";
-    LinkedList myList;
+    LinkedList ll;
     cout << "Done making list\n";
-    myList.insertNode(A, 1);
-    myList.insertNode(B, 2);
-    myList.insertNode(C, 3);
-    myList.insertNode(D, 4);
-    myList.printList();
-    
-    // STEP 3: Insert a node into middle of list.
-    myList.insertNode(E, 2);
-    myList.printList();
-    
-    // STEP 4: Insert node at the front of list.
-    myList.insertNode(F,1);
-    myList.printList();
-    
-    // STEP 5: Remove the last node from the list.
-    myList.removeNode(6);
-    myList.printList();
-    
-    // STEP 6: Remove the first node from the list.
-    myList.removeNode(1);
-    myList.printList();
-    
-    // STEP 7: Remove a node from the middle of the list.
-    myList.removeNode(3);
-    myList.printList();
+    ll.addNodeToEnd(1);
+    ll.addNodeToEnd(2);
+    ll.addNodeToEnd(3);
+    ll.addNodeToEnd(4);
+    cout << "List length: " << ll.getListLength() << "\n";
+    ll.printList();
+
+    cout << "\nRemoving 1 node:\n";
+    ll.removeNodeFromEnd();
+    cout << "List length: " << ll.getListLength() << "\n";
+    ll.printList();
+
+
+    cout << "\nInserting node at 1:\n";
+    // values 9 at posiiton 1
+    ll.insertNode(9,1);
+    ll.printList();
+
+    cout << "\nInserting node at 0:\n";
+    // values 11 at posiiton 0
+    ll.insertNode(11,0);
+    ll.printList();
+
+    cout << "\nRemoving node at 3:\n";
+    ll.removeNode(3);
+    ll.printList();
+
+    cout << "\nRemoving node at 0:\n";
+    ll.removeNode(0);
+    ll.printList();
+
+    cout << "\nDeleteing rest of nodes:\n";
+    ll.deleteAllNodes();
+    cout << "List length: " << ll.getListLength() << "\n";
+    ll.printList();
     
     return 0;
 }
