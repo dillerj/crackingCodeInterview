@@ -27,18 +27,22 @@ void deleteNode(node *p_node)
     return;
 }
 
-void visit( node *p_node)
+void visit( node *p_node, bool valOnly=true)
 {
     if (p_node == NULL)
     {
-        cout << "Visit, failed, pointer to node is NULL\n";
+        cout << "Visited node is NULL\n";
         return;
     }
-    // print out node?
-    printf("p_node: %p\n", (void *)p_node); 
-    printf("value : %i\n", p_node->value); 
-    printf("left  : %p\n", (void *)p_node->left); 
-    printf("right : %p\n", (void *)p_node->right); 
+
+    if (valOnly)
+        printf("value : %i\n", p_node->value); 
+    else {
+        printf("p_node: %p\n", (void *)p_node); 
+        printf("value : %i\n", p_node->value); 
+        printf("left  : %p\n", (void *)p_node->left); 
+        printf("right : %p\n", (void *)p_node->right); 
+    }
 }
 
 
@@ -59,6 +63,7 @@ void BinTree::addNode(int value)
     {
         cout << "Head is empty, creating node\n";
         head = createNode(value);   
+        numNodes++;
     } else {
         addNode(head, value);        
     }
@@ -67,28 +72,33 @@ void BinTree::addNode(int value)
 
 void BinTree::addNode(node *p_node, int value)
 {    
-    // Regular case
-    if (p_node == NULL)
+    // Compare to values in node
+    if (value < p_node->value)
     {
-        p_node = createNode(value);
-        printf("created node at: %p\n", (void *)p_node); 
-    } else {
-        // Compare to values in node
-        if (value < p_node->value)
-        {
-            // Value < current node value, go left
+        // Value < current node value, go left
+        // Check to see if we can keep going left
+        if (p_node->left != NULL)
+        {    
             addNode(p_node->left, value);
-            printf("added left node at: %p\n", (void *)p_node); 
         } else {
-            // Value >= current node value, go right
-            addNode(p_node->right, value);
-            printf("added right node at: %p\n", (void *)p_node); 
+            // create left node
+            p_node->left = createNode(value);
+            numNodes++; 
         }
+    
+    } else {
+        // Value >= current node value, go right
+        if (p_node->right != NULL)
+        {    
+            addNode(p_node->right, value);
+        } else {
+            // create left node
+            p_node->right = createNode(value); 
+            numNodes++;
+        }       
     }
-    numNodes++;
     return;
 }
-
 
 void BinTree::deleteTree()
 {
@@ -106,7 +116,6 @@ void BinTree::deleteTree(node *p_node)
         deleteNode(p_node);
     }
 }
-
 
 void BinTree::traverseInOrder(node *p_node)
 {
@@ -155,25 +164,61 @@ void BinTree::printTree()
     {
         cout << "Tree is empty\n";
     } else {
-        printTree(head,0);
+        printTree(head);
     }
     return;
 }
 
-void BinTree::printTree(node* p, int indent=0)
+void BinTree::printTree(node* p)
 {
-    // print post order
+    // print pre order
     if(p != NULL) {
-        if(p->left) 
-            printTree(p->left, indent+4);
-        if(p->right) 
-            printTree(p->right, indent+4);
-        if (indent) {
-            cout << std::setw(indent) << ' ';
+        cout<< p->value << "\n";
+        if(p->left) {
+            cout << "<-L\n";
+            printTree(p->left);
         }
-        cout<< p->value << "\n ";
+        if(p->right) {
+            cout << "R->\n";
+            printTree(p->right);
+        }
     }
 }
+
+
+bool BinTree::search(int value)
+{
+    node *p_search = search(head, value);
+
+    if (p_search == NULL){
+        cout << "Failed to find value: " << value << "\n";
+        return false;
+    } else {
+        printf("Found value: %i at p_search: %p\n", value, (void *)p_search);
+        return true;
+    }
+}
+
+node *BinTree::search(node *p_node, int value)
+{
+    if(p_node != NULL)
+    {
+        if(value == p_node->value)
+        {
+            return p_node;
+        }
+
+        if(value < p_node->value) {
+            return search(p_node->left, value);
+        } else {
+            return search(p_node->right, value);
+        }
+    
+    } else {
+        return NULL; 
+    }
+}
+
 
 // Destructor de-allocates memory used by the list.
 BinTree::~BinTree() 
@@ -189,7 +234,7 @@ int main()
 {
     cout << "Creating node:\n";
     node * p_test = createNode(10);
-    visit(p_test);
+    visit(p_test,false);
 
     cout << "\nCreated binary tree object\n";
     BinTree btree;
@@ -201,9 +246,15 @@ int main()
     btree.addNode(10);
     btree.addNode(7);
     
-    cout << "Printing Tree()\n";
+    cout <<"Number of nodes: " << btree.getNumNodes() << "\n"; 
+
+    cout << "\nPrinting Tree()\n";
     btree.printTree();
 
+    cout << "\nSearch Tree\n";
+    btree.search(1);
+    btree.search(100);
+    
     // cout << "Traversing tree\n";
     // btree.traverseInOrder(p_head);
 

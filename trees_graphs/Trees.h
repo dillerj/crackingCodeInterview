@@ -34,7 +34,7 @@ struct node
 // Bin Node Specific functions 
 node* createNode(int value);        
 void deleteNode(node *p_node);
-void visit( node *p_node);
+void visit( node *p_node, bool valOnly);
 
 /*******************************************************************
  * Tree class declration
@@ -46,26 +46,25 @@ class BinTree
         ~BinTree();
         
         void addNode(int value);
-        node* search(int value);
         void traverseInOrder();
         void traversePreOrder();
         void traversePostOrder();
         void deleteTree();
-        
         int getNumNodes();
         void printTree();
+        bool search(int value);
         
     private:
         node *head;
         int numNodes;
         
         void addNode(node *p_node, int value);
-        node* search(node *p_node, int value);
         void traverseInOrder( node *p_node );
         void traversePreOrder( node *p_node );
         void traversePostOrder( node *p_node );
         void deleteTree(node *p_node);
-        void printTree(node* p, int indent);
+        void printTree(node* p);
+        node* search(node *p_node, int value);
 };
 
 #endif // TREES_H
