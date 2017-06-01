@@ -10,43 +10,62 @@
 #include <iostream>
 #include <string>
 using namespace std;
+#include <iomanip>
 
 /*******************************************************************
  * Node Structures
  *******************************************************************/
 
 // Node with dynamic amount of children
-struct Node
-{
-    int value;
-    Node * children; // should be **? 
-};
+// struct Node
+// {
+//     int value;
+//     Node * children; // should be **? 
+// };
 
 // Binary Node
-struct BinNode
+struct node
 {
     int value;
-    Node *left;
-    Node *right; 
+    node *left;
+    node *right; 
 };
+
+// Bin Node Specific functions 
+node* createNode(int value);        
+void deleteNode(node *p_node);
+void visit( node *p_node);
 
 /*******************************************************************
  * Tree class declration
  *******************************************************************/
 class BinTree
 {
-    private:
-        BinNode *head;
-        int numNodes;
-    
     public:
         BinTree();
-        BinNode *getNode(int value);
-        bool insertNode( int value);
-        bool removeNode(int value);
-        void deleteAllNodes();
-        void printTree();
         ~BinTree();
+        
+        void addNode(int value);
+        node* search(int value);
+        void traverseInOrder();
+        void traversePreOrder();
+        void traversePostOrder();
+        void deleteTree();
+        
+        int getNumNodes();
+        void printTree();
+        
+    private:
+        node *head;
+        int numNodes;
+        
+        void addNode(node *p_node, int value);
+        node* search(node *p_node, int value);
+        void traverseInOrder( node *p_node );
+        void traversePreOrder( node *p_node );
+        void traversePostOrder( node *p_node );
+        void deleteTree(node *p_node);
+        void printTree(node* p, int indent);
 };
 
 #endif // TREES_H
