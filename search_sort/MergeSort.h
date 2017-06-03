@@ -19,9 +19,7 @@ using namespace std;
 /*******************************************************************
  * Function Prototypes
  *******************************************************************/
-// void mergesort(int array[], int *helper, int len);
-// void mergesort(int array[], int *helper);
-void mergesort(int array[], int helper[], int low, int high);
+void mergeSort(int array[], int helper[], int low, int high);
 void merge(int array[], int helper[], int low, int middle, int high);
 
 /*******************************************************************
